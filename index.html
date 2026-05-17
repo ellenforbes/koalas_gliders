@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Olive Downs — Koala &amp; Glider Monitoring · EDA Report</title>
+<style>:root {
+  --pembroke-red:         #D9212C;
+  --pembroke-charcoal:    #101921;
+  --pembroke-taupe:       #CEC5C0;
+  --pembroke-taupe-light: #F5F2F0;
+  --pembroke-white:       #FFFFFF;
+  --pembroke-grey-80:     #58595B;
+  --pembroke-grey-60:     #808284;
+  --pembroke-grey-40:     #A7A9AC;
+  --pembroke-grey-20:     #D1D3D4;
+  --pembroke-font:        'Aptos','Aptos Display','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--pembroke-font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--pembroke-charcoal);
+  background: var(--pembroke-white);
+  margin: 0;
+}
+
+h1, h2, h3, h4 { color: var(--pembroke-charcoal); line-height: 1.2; }
+h1 { font-size: 2rem;    font-weight: 700; }
+h2 { font-size: 1.5rem;  font-weight: 600; border-bottom: 2px solid var(--pembroke-red); padding-bottom: 6px; }
+h3 { font-size: 1.125rem; font-weight: 600; }
+a  { color: var(--pembroke-red); text-decoration: underline; }
+
+table { border-collapse: collapse; width: 100%; font-family: var(--pembroke-font); }
+table thead th {
+  background: var(--pembroke-charcoal); color: var(--pembroke-white);
+  font-weight: 600; text-align: left;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 2px solid var(--pembroke-red);
+}
+table tbody td {
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--pembroke-grey-40);
+}
+table tbody tr:nth-child(even) td { background: var(--pembroke-taupe-light); }
+
+code {
+  background: var(--pembroke-taupe-light);
+  color: var(--pembroke-charcoal);
+  padding: 1px 6px; border-radius: 3px;
+  font-family: 'Cascadia Code', SFMono-Regular, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.caption {
+  font-size: 0.8125rem; color: var(--pembroke-grey-60); font-style: italic;
+  text-align: center; margin-top: 4px;
+}
+
+.pembroke-callout {
+  border-left: 4px solid var(--pembroke-red);
+  background: var(--pembroke-taupe-light);
+  padding: 10px 16px;
+  margin: 14px 0;
+  font-size: 0.95rem;
+}
+.pembroke-header {
+  background: var(--pembroke-charcoal);
+  color: var(--pembroke-white);
+  padding: 22px 36px;
+  display: flex; align-items: center; gap: 24px;
+  border-bottom: 4px solid var(--pembroke-red);
+}
+/* Logo must NOT inherit the generic img border / margin / background */
+.pembroke-header img.pembroke-logo,
+img.pembroke-logo {
+  height: 64px; width: auto;
+  border: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: block;
+}
+.pembroke-header-text h1 { color: var(--pembroke-white); margin: 0; font-weight: 700; font-size: 1.6rem; letter-spacing: 0.5px; }
+.pembroke-header-text p  { color: var(--pembroke-grey-20); margin: 4px 0 0; font-size: 0.95rem; }
+.pembroke-footer {
+  background: var(--pembroke-charcoal); color: var(--pembroke-grey-20);
+  text-align: center; padding: 18px 24px; font-size: 0.85rem;
+  margin-top: 30px; border-top: 4px solid var(--pembroke-red);
+}
+.pembroke-footer a { color: var(--pembroke-white); }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 36px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 22px 0 28px; }
+    .kpi { background: var(--pembroke-white); border: 1px solid var(--pembroke-grey-20);
+           border-left: 5px solid var(--pembroke-red); padding: 14px 18px; }
+    .kpi .num { font-size: 1.7rem; font-weight: 700; color: var(--pembroke-charcoal); line-height: 1.1; }
+    .kpi .lbl { color: var(--pembroke-grey-80); font-size: 0.88rem; margin-top: 4px; }
+    .kpi .split { font-size: 0.82rem; color: var(--pembroke-grey-60); margin-top: 6px; }
+    .kpi .split .k { color: var(--pembroke-charcoal); font-weight: 600; }
+    .kpi .split .g { color: var(--pembroke-red);      font-weight: 600; }
+    .figgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .figgrid img, img.fullw { width: 100%; }
+    img { max-width: 100%; height: auto; border: 1px solid var(--pembroke-grey-20); margin: 10px 0; display: block; }
+    .map-btn { display: inline-block; padding: 12px 22px; background: var(--pembroke-red);
+               color: var(--pembroke-white); text-decoration: none; font-weight: 600;
+               border: none; margin: 14px 0; letter-spacing: 0.3px; }
+    .map-btn:hover { background: #B71820; }
+    .scroll-table { max-height: 540px; overflow-y: auto; border: 1px solid var(--pembroke-grey-20); }</style>
+</head>
+<body>
+<header class="pembroke-header">
+  <img src="brand/sub-brands/olive-downs-complex-dark.svg" alt="Pembroke Resources - Olive Downs Complex" class="pembroke-logo">
+  <div class="pembroke-header-text">
+    <h1>Koala &amp; Glider Monitoring</h1>
+    <p>Exploratory Data Analysis · generated 17 May 2026, 10:44</p>
+  </div>
+</header>
+
+<nav class="pembroke-nav" style="background:var(--pembroke-grey-80);padding:10px 36px;display:flex;gap:28px;font-family:var(--pembroke-font);"><a href="index.html" style="color:white;text-decoration:none;font-weight:500;">Home</a><a href="map.html" style="color:white;text-decoration:none;font-weight:500;">Interactive map</a><a href="dashboard.html" style="color:white;text-decoration:none;font-weight:500;">Dashboard</a><a href="tables/per_koala_summary.csv" style="color:white;text-decoration:none;font-weight:500;">Per-koala CSV</a></nav>
+
+<main>
+
+<p>The monitoring program at Olive Downs covers both <strong>koalas</strong> and
+<strong>gliders</strong>. Only koalas wear GPS collars; everything we know about
+gliders comes from on-foot field events and vet records. This report breaks
+every dataset down by species.</p>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="num">128</div><div class="lbl">Profiles total</div>
+    <div class="split"><span class="k">57 Koala</span> · <span class="g">71 Glider</span></div></div>
+  <div class="kpi"><div class="num">42</div><div class="lbl">Deceased</div>
+    <div class="split"><span class="k">20 Koala</span> · <span class="g">22 Glider</span></div></div>
+  <div class="kpi"><div class="num">41</div><div class="lbl">Necropsies</div>
+    <div class="split"><span class="k">20 Koala</span> · <span class="g">21 Glider</span></div></div>
+  <div class="kpi"><div class="num">422</div><div class="lbl">Vet exams</div>
+    <div class="split"><span class="k">344 Koala</span> · <span class="g">78 Glider</span></div></div>
+  <div class="kpi"><div class="num">13,432</div><div class="lbl">Field events</div>
+    <div class="split"><span class="k">6,447 Koala</span> · <span class="g">6,985 Glider</span></div></div>
+  <div class="kpi"><div class="num">49</div><div class="lbl">Collared koalas</div>
+    <div class="split">Gliders aren't GPS-collared</div></div>
+  <div class="kpi"><div class="num">406,083</div><div class="lbl">Koala GPS fixes</div>
+    <div class="split">2021-10-20 → 2026-03-14</div></div>
+</div>
+
+<h2>Master interactive map</h2>
+<p>All koala tracks, MCP/KDE home ranges, plus mortality, profiles, and field events for
+<strong>both species</strong>. Toggle each species layer independently in the top-right.</p>
+<p><a class="map-btn" href="map.html" target="_blank">Open interactive map →</a></p>
+
+<h3>How to read the two density heatmaps</h3>
+<p>The master map includes two separate heatmap layers because koalas and gliders are surveyed in fundamentally different ways:</p>
+<ul>
+  <li><strong>Koala density heatmap</strong> — built from the <strong>collar GPS fixes</strong>. Every ~2&nbsp;hours a collared koala records its position automatically, so density here approximates how much <em>time</em> a koala spends in each location (free-ranging fixes only; the homestead and bad reads are filtered out). High density = a koala lived/rested there for many hours over weeks or months.</li>
+  <li><strong>Glider density heatmap</strong> — built from <strong>on-foot field events</strong> in the Field Events sheet (no GPS collars on gliders). Density here reflects where <em>vets and field staff have encountered gliders</em> — a function of both true glider abundance AND survey effort. High density = many recorded encounters, biased toward areas the team visits often (e.g. tracking transects, monitoring routes).</li>
+</ul>
+<p><strong>Don't compare the two intensities directly</strong> — they're produced by completely different sampling regimes. The koala layer is roughly proportional to <em>time spent</em>; the glider layer is proportional to <em>encounters logged</em>. They're both useful for spotting hotspots within their own species, but a "darker" patch on the glider map doesn't mean it has more gliders per hectare than the koala map has koalas per hectare.</p>
+
+<h2>Data quality &amp; corrections</h2>
+<p>Raw collar exports contain several patterns that don't reflect real koala behaviour and would skew movement analysis if left untouched. The pipeline applies four corrections automatically:</p>
+<ol>
+  <li><strong>Degraded GPS fixes.</strong> Some collar reads are recorded with no HDOP/PDOP accuracy value and land far from where the koala otherwise was &mdash; classic single-satellite or cold-start fixes with hundreds of metres of error. The QC pass computes, for each fix, the median distance to its 4 nearest in-time neighbours; fixes more than 5&nbsp;km from their neighbours are dropped as outliers. About <strong>0.1% of fixes</strong> are removed this way.</li>
+  <li><strong>Implausible speeds.</strong> A koala walks at ~1&nbsp;km/h and sprints at most 3&ndash;4&nbsp;km/h. Step lengths implying sustained speeds above 5&nbsp;km/h are treated as bad reads, not movement.</li>
+  <li><strong>Collar-offline gaps.</strong> When a collar is offline for hours or weeks, the next fix can be tens of kilometres away. Track LineStrings are split into segments wherever consecutive fixes are more than 12&nbsp;hours apart, so an offline period doesn't draw a straight line across the map. The koalas with the most segmented tracks (Sean, Kaelah, Annie) had the most intermittent collar coverage.</li>
+  <li><strong>Handling sites (capture / vet / release).</strong> Koalas are physically transported to <strong>Iffley Homestead</strong> for vet exams and collaring. The collar keeps recording, so the GPS log includes positions at the homestead and the transport between. Fixes within 200&nbsp;m of the homestead are flagged in the <code>at_handling_site</code> column; they're kept as data points but excluded from step distance, daily distance, and home-range calculations, and tracks are broken on either side so we don't draw long radiating lines between habitat and the homestead. <strong>42 of 49 collared koalas</strong> have at least one fix at Iffley (3,971 fixes total). Add more handling sites to <code>HANDLING_SITES</code> in <code>analysis/scripts/config.py</code> as you discover them.</li>
+</ol>
+<p>After these corrections the dataset has <strong>~402,000 free-ranging GPS fixes</strong> across 49 koalas, the maximum step length is ~5&nbsp;km (down from 35&nbsp;km in the raw data), and 99.9% of steps are under 520&nbsp;m &mdash; consistent with how koalas actually move.</p>
+
+<h2>1. Species &amp; cohort composition</h2>
+<img class="fullw" src="figures/mortality_split.png" alt="Cohort vs deceased by species">
+<img class="fullw" src="figures/sex.png" alt="Sex by species">
+<div class="pembroke-callout">Of 128 profiles, 71 are gliders — more than half of the wider program even though they're absent from the GPS dataset.</div>
+
+<h2>2. Collared koala movement (GPS data — Koala only)</h2>
+<div class="figgrid">
+  <img src="figures/fix_counts.png" alt="Fix counts">
+  <img src="figures/days_tracked.png" alt="Days tracked">
+</div>
+<img class="fullw" src="figures/total_dist.png" alt="Total distance">
+<img class="fullw" src="figures/timeline.png" alt="Tracking timeline">
+<img class="fullw" src="figures/diurnal.png" alt="Diurnal">
+<p class="caption">Figure: cohort-mean movement count by hour AEST. Koalas are crepuscular/nocturnal — the evening uplift is expected.</p>
+
+<h3>Per-koala summary table</h3>
+<p><a href="tables/per_koala_summary.csv">Download CSV →</a></p>
+<div class="scroll-table"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>koala</th>
+      <th>n_rows</th>
+      <th>n_fixes</th>
+      <th>first_fix</th>
+      <th>last_fix</th>
+      <th>days_tracked</th>
+      <th>total_dist_km</th>
+      <th>mean_daily_dist_km</th>
+      <th>mean_step_m</th>
+      <th>median_step_m</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Aaliyah</td>
+      <td>56960</td>
+      <td>9839</td>
+      <td>2022-05-25 04:00:58+00:00</td>
+      <td>2024-07-17 20:00:40+00:00</td>
+      <td>784.7</td>
+      <td>175.63</td>
+      <td>0.224</td>
+      <td>17.9</td>
+      <td>6.9</td>
+    </tr>
+    <tr>
+      <td>Aja</td>
+      <td>15832</td>
+      <td>3088</td>
+      <td>2025-09-02 12:00:39+00:00</td>
+      <td>2026-03-09 22:01:32+00:00</td>
+      <td>188.4</td>
+      <td>54.64</td>
+      <td>0.290</td>
+      <td>17.7</td>
+      <td>8.2</td>
+    </tr>
+    <tr>
+      <td>Alec</td>
+      <td>32144</td>
+      <td>5907</td>
+      <td>2023-02-07 02:00:39+00:00</td>
+      <td>2024-04-17 20:00:17+00:00</td>
+      <td>435.7</td>
+      <td>180.42</td>
+      <td>0.414</td>
+      <td>30.5</td>
+      <td>7.5</td>
+    </tr>
+    <tr>
+      <td>Amelia</td>
+      <td>68671</td>
+      <td>12448</td>
+      <td>2022-05-24 03:05:12+00:00</td>
+      <td>2024-10-02 21:16:11+00:00</td>
+      <td>862.8</td>
+      <td>165.51</td>
+      <td>0.192</td>
+      <td>13.3</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>Annie</td>
+      <td>86146</td>
+      <td>10781</td>
+      <td>2022-09-15 02:01:10+00:00</td>
+      <td>2026-03-08 22:00:39+00:00</td>
+      <td>1270.8</td>
+      <td>301.48</td>
+      <td>0.237</td>
+      <td>28.0</td>
+      <td>8.4</td>
+    </tr>
+    <tr>
+      <td>Aymeric</td>
+      <td>8973</td>
+      <td>2410</td>
+      <td>2025-08-14 06:00:48+00:00</td>
+      <td>2026-01-17 21:30:16+00:00</td>
+      <td>156.6</td>
+      <td>45.90</td>
+      <td>0.293</td>
+      <td>19.1</td>
+      <td>9.6</td>
+    </tr>
+    <tr>
+      <td>Blaise</td>
+      <td>18253</td>
+      <td>4135</td>
+      <td>2025-08-16 02:01:18+00:00</td>
+      <td>2026-03-06 21:30:30+00:00</td>
+      <td>202.8</td>
+      <td>76.93</td>
+      <td>0.379</td>
+      <td>18.6</td>
+      <td>8.2</td>
+    </tr>
+    <tr>
+      <td>Callan</td>
+      <td>61843</td>
+      <td>9955</td>
+      <td>2023-02-08 02:28:04+00:00</td>
+      <td>2025-06-10 01:30:10+00:00</td>
+      <td>853.0</td>
+      <td>166.55</td>
+      <td>0.195</td>
+      <td>16.7</td>
+      <td>8.6</td>
+    </tr>
+    <tr>
+      <td>Cameron</td>
+      <td>19425</td>
+      <td>3000</td>
+      <td>2025-06-28 08:01:11+00:00</td>
+      <td>2026-02-23 22:00:48+00:00</td>
+      <td>240.6</td>
+      <td>76.12</td>
+      <td>0.316</td>
+      <td>25.4</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>Charlie</td>
+      <td>53167</td>
+      <td>11356</td>
+      <td>2022-07-28 02:00:56+00:00</td>
+      <td>2024-04-18 21:44:18+00:00</td>
+      <td>630.8</td>
+      <td>148.75</td>
+      <td>0.236</td>
+      <td>13.1</td>
+      <td>7.5</td>
+    </tr>
+    <tr>
+      <td>Claudia</td>
+      <td>66722</td>
+      <td>15174</td>
+      <td>2022-10-23 08:28:45+00:00</td>
+      <td>2024-11-23 06:00:39+00:00</td>
+      <td>761.9</td>
+      <td>259.69</td>
+      <td>0.341</td>
+      <td>17.1</td>
+      <td>7.4</td>
+    </tr>
+    <tr>
+      <td>Craig</td>
+      <td>84383</td>
+      <td>19537</td>
+      <td>2023-06-12 02:33:10+00:00</td>
+      <td>2026-01-22 01:00:56+00:00</td>
+      <td>954.9</td>
+      <td>454.08</td>
+      <td>0.476</td>
+      <td>23.2</td>
+      <td>9.6</td>
+    </tr>
+    <tr>
+      <td>El</td>
+      <td>34828</td>
+      <td>6661</td>
+      <td>2023-02-02 04:35:27+00:00</td>
+      <td>2024-05-09 20:00:48+00:00</td>
+      <td>462.6</td>
+      <td>144.65</td>
+      <td>0.313</td>
+      <td>21.7</td>
+      <td>9.5</td>
+    </tr>
+    <tr>
+      <td>Emily</td>
+      <td>88210</td>
+      <td>18771</td>
+      <td>2023-04-24 06:01:10+00:00</td>
+      <td>2026-03-10 21:00:14+00:00</td>
+      <td>1051.6</td>
+      <td>367.54</td>
+      <td>0.349</td>
+      <td>19.6</td>
+      <td>7.5</td>
+    </tr>
+    <tr>
+      <td>Finn</td>
+      <td>33379</td>
+      <td>5031</td>
+      <td>2023-06-10 08:01:42+00:00</td>
+      <td>2024-12-06 00:36:36+00:00</td>
+      <td>544.7</td>
+      <td>117.51</td>
+      <td>0.216</td>
+      <td>23.4</td>
+      <td>8.7</td>
+    </tr>
+    <tr>
+      <td>Flynn</td>
+      <td>24513</td>
+      <td>2334</td>
+      <td>2023-12-11 04:01:05+00:00</td>
+      <td>2024-10-28 20:00:58+00:00</td>
+      <td>322.7</td>
+      <td>101.43</td>
+      <td>0.314</td>
+      <td>43.5</td>
+      <td>11.1</td>
+    </tr>
+    <tr>
+      <td>Garth</td>
+      <td>25788</td>
+      <td>5049</td>
+      <td>2022-09-16 00:01:04+00:00</td>
+      <td>2023-07-28 04:00:48+00:00</td>
+      <td>315.2</td>
+      <td>100.86</td>
+      <td>0.320</td>
+      <td>20.0</td>
+      <td>7.8</td>
+    </tr>
+    <tr>
+      <td>Georgia</td>
+      <td>39435</td>
+      <td>7281</td>
+      <td>2024-10-17 10:00:40+00:00</td>
+      <td>2026-03-09 04:00:14+00:00</td>
+      <td>507.7</td>
+      <td>86.82</td>
+      <td>0.171</td>
+      <td>11.9</td>
+      <td>7.0</td>
+    </tr>
+    <tr>
+      <td>Hannah</td>
+      <td>75226</td>
+      <td>16172</td>
+      <td>2023-08-22 04:00:48+00:00</td>
+      <td>2026-03-13 07:00:39+00:00</td>
+      <td>934.1</td>
+      <td>276.29</td>
+      <td>0.296</td>
+      <td>17.1</td>
+      <td>7.8</td>
+    </tr>
+    <tr>
+      <td>Henry</td>
+      <td>252</td>
+      <td>32</td>
+      <td>2025-08-14 06:01:10+00:00</td>
+      <td>2025-08-16 20:00:47+00:00</td>
+      <td>2.6</td>
+      <td>5.01</td>
+      <td>1.941</td>
+      <td>161.8</td>
+      <td>7.2</td>
+    </tr>
+    <tr>
+      <td>Immy</td>
+      <td>79760</td>
+      <td>14093</td>
+      <td>2022-04-22 03:48:48+00:00</td>
+      <td>2025-01-26 22:00:48+00:00</td>
+      <td>1010.8</td>
+      <td>220.70</td>
+      <td>0.218</td>
+      <td>15.7</td>
+      <td>7.9</td>
+    </tr>
+    <tr>
+      <td>Isaiah</td>
+      <td>23972</td>
+      <td>5308</td>
+      <td>2023-04-19 04:00:58+00:00</td>
+      <td>2024-01-19 20:00:39+00:00</td>
+      <td>275.7</td>
+      <td>140.30</td>
+      <td>0.509</td>
+      <td>26.4</td>
+      <td>8.2</td>
+    </tr>
+    <tr>
+      <td>Izzy</td>
+      <td>58589</td>
+      <td>9681</td>
+      <td>2023-10-06 02:12:12+00:00</td>
+      <td>2026-03-13 00:00:40+00:00</td>
+      <td>888.9</td>
+      <td>164.08</td>
+      <td>0.185</td>
+      <td>17.0</td>
+      <td>7.6</td>
+    </tr>
+    <tr>
+      <td>Jackson</td>
+      <td>21786</td>
+      <td>3524</td>
+      <td>2023-06-11 08:51:10+00:00</td>
+      <td>2024-05-07 20:01:10+00:00</td>
+      <td>331.5</td>
+      <td>139.84</td>
+      <td>0.422</td>
+      <td>39.7</td>
+      <td>7.8</td>
+    </tr>
+    <tr>
+      <td>James</td>
+      <td>9874</td>
+      <td>1551</td>
+      <td>2024-04-23 02:01:18+00:00</td>
+      <td>2024-08-30 08:00:39+00:00</td>
+      <td>129.2</td>
+      <td>15.98</td>
+      <td>0.124</td>
+      <td>10.3</td>
+      <td>6.7</td>
+    </tr>
+    <tr>
+      <td>John</td>
+      <td>25580</td>
+      <td>4177</td>
+      <td>2023-10-02 02:00:40+00:00</td>
+      <td>2024-09-17 22:00:40+00:00</td>
+      <td>351.8</td>
+      <td>66.69</td>
+      <td>0.190</td>
+      <td>16.0</td>
+      <td>7.5</td>
+    </tr>
+    <tr>
+      <td>Joy</td>
+      <td>9539</td>
+      <td>1544</td>
+      <td>2023-12-14 06:01:18+00:00</td>
+      <td>2024-04-23 00:00:24+00:00</td>
+      <td>130.7</td>
+      <td>33.04</td>
+      <td>0.253</td>
+      <td>21.4</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>Kaelah</td>
+      <td>95641</td>
+      <td>29067</td>
+      <td>2023-09-30 08:55:04+00:00</td>
+      <td>2026-03-08 23:00:40+00:00</td>
+      <td>890.6</td>
+      <td>374.47</td>
+      <td>0.420</td>
+      <td>12.9</td>
+      <td>7.0</td>
+    </tr>
+    <tr>
+      <td>Lincoln</td>
+      <td>12808</td>
+      <td>2753</td>
+      <td>2024-02-26 10:00:39+00:00</td>
+      <td>2024-07-26 20:00:16+00:00</td>
+      <td>151.4</td>
+      <td>62.48</td>
+      <td>0.413</td>
+      <td>22.7</td>
+      <td>7.4</td>
+    </tr>
+    <tr>
+      <td>Lotus</td>
+      <td>54832</td>
+      <td>12890</td>
+      <td>2023-12-11 04:00:59+00:00</td>
+      <td>2026-03-10 23:00:16+00:00</td>
+      <td>820.8</td>
+      <td>183.79</td>
+      <td>0.224</td>
+      <td>14.3</td>
+      <td>8.9</td>
+    </tr>
+    <tr>
+      <td>Maxy</td>
+      <td>43858</td>
+      <td>7362</td>
+      <td>2022-05-07 02:00:39+00:00</td>
+      <td>2023-11-30 18:00:39+00:00</td>
+      <td>572.7</td>
+      <td>269.77</td>
+      <td>0.471</td>
+      <td>36.6</td>
+      <td>8.4</td>
+    </tr>
+    <tr>
+      <td>Ned</td>
+      <td>41912</td>
+      <td>7714</td>
+      <td>2024-08-21 07:20:31+00:00</td>
+      <td>2026-03-09 22:01:18+00:00</td>
+      <td>565.6</td>
+      <td>178.82</td>
+      <td>0.316</td>
+      <td>23.2</td>
+      <td>8.2</td>
+    </tr>
+    <tr>
+      <td>Niko</td>
+      <td>44298</td>
+      <td>9403</td>
+      <td>2022-09-16 04:00:39+00:00</td>
+      <td>2024-02-25 20:00:48+00:00</td>
+      <td>527.7</td>
+      <td>297.62</td>
+      <td>0.564</td>
+      <td>31.7</td>
+      <td>8.2</td>
+    </tr>
+    <tr>
+      <td>Noah</td>
+      <td>46378</td>
+      <td>7385</td>
+      <td>2023-02-07 07:09:10+00:00</td>
+      <td>2024-10-22 19:00:16+00:00</td>
+      <td>623.5</td>
+      <td>205.84</td>
+      <td>0.330</td>
+      <td>27.9</td>
+      <td>8.1</td>
+    </tr>
+    <tr>
+      <td>Olivia</td>
+      <td>87483</td>
+      <td>15314</td>
+      <td>2022-06-02 06:00:40+00:00</td>
+      <td>2026-03-05 16:00:26+00:00</td>
+      <td>1372.4</td>
+      <td>361.44</td>
+      <td>0.263</td>
+      <td>23.6</td>
+      <td>6.9</td>
+    </tr>
+    <tr>
+      <td>Ollie</td>
+      <td>103498</td>
+      <td>18722</td>
+      <td>2022-05-28 04:00:48+00:00</td>
+      <td>2026-03-09 21:00:19+00:00</td>
+      <td>1381.7</td>
+      <td>594.43</td>
+      <td>0.430</td>
+      <td>31.8</td>
+      <td>7.3</td>
+    </tr>
+    <tr>
+      <td>Pippah</td>
+      <td>37762</td>
+      <td>6179</td>
+      <td>2024-04-19 04:00:48+00:00</td>
+      <td>2025-09-18 00:41:35+00:00</td>
+      <td>516.9</td>
+      <td>77.99</td>
+      <td>0.151</td>
+      <td>12.6</td>
+      <td>8.1</td>
+    </tr>
+    <tr>
+      <td>Robbie</td>
+      <td>3761</td>
+      <td>597</td>
+      <td>2025-09-08 11:21:32+00:00</td>
+      <td>2025-10-28 12:01:18+00:00</td>
+      <td>50.0</td>
+      <td>30.18</td>
+      <td>0.603</td>
+      <td>50.6</td>
+      <td>9.5</td>
+    </tr>
+    <tr>
+      <td>Sam</td>
+      <td>41255</td>
+      <td>6957</td>
+      <td>2022-05-28 04:01:04+00:00</td>
+      <td>2023-10-23 22:01:48+00:00</td>
+      <td>513.8</td>
+      <td>249.76</td>
+      <td>0.486</td>
+      <td>35.9</td>
+      <td>7.3</td>
+    </tr>
+    <tr>
+      <td>Sean</td>
+      <td>31733</td>
+      <td>5019</td>
+      <td>2023-02-03 22:00:22+00:00</td>
+      <td>2024-08-16 02:00:58+00:00</td>
+      <td>559.2</td>
+      <td>162.03</td>
+      <td>0.290</td>
+      <td>32.3</td>
+      <td>8.3</td>
+    </tr>
+    <tr>
+      <td>Shinny</td>
+      <td>66185</td>
+      <td>12849</td>
+      <td>2023-02-08 22:01:21+00:00</td>
+      <td>2025-10-15 09:00:17+00:00</td>
+      <td>979.5</td>
+      <td>191.00</td>
+      <td>0.195</td>
+      <td>14.9</td>
+      <td>7.9</td>
+    </tr>
+    <tr>
+      <td>ShooShoo</td>
+      <td>27115</td>
+      <td>8619</td>
+      <td>2025-04-24 14:00:40+00:00</td>
+      <td>2025-11-08 17:25:58+00:00</td>
+      <td>198.1</td>
+      <td>102.49</td>
+      <td>0.517</td>
+      <td>11.9</td>
+      <td>7.3</td>
+    </tr>
+    <tr>
+      <td>Sienna</td>
+      <td>41258</td>
+      <td>7573</td>
+      <td>2022-05-27 06:00:48+00:00</td>
+      <td>2023-10-24 22:00:40+00:00</td>
+      <td>515.7</td>
+      <td>109.19</td>
+      <td>0.212</td>
+      <td>14.4</td>
+      <td>8.0</td>
+    </tr>
+    <tr>
+      <td>Sophie</td>
+      <td>101279</td>
+      <td>15815</td>
+      <td>2022-06-16 12:00:39+00:00</td>
+      <td>2026-03-09 01:00:48+00:00</td>
+      <td>1361.5</td>
+      <td>263.26</td>
+      <td>0.193</td>
+      <td>16.6</td>
+      <td>6.9</td>
+    </tr>
+    <tr>
+      <td>Steve</td>
+      <td>39949</td>
+      <td>7977</td>
+      <td>2023-06-10 08:00:48+00:00</td>
+      <td>2024-02-07 16:00:48+00:00</td>
+      <td>242.3</td>
+      <td>129.75</td>
+      <td>0.535</td>
+      <td>16.3</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>Sunita</td>
+      <td>38111</td>
+      <td>6207</td>
+      <td>2023-06-13 00:00:48+00:00</td>
+      <td>2024-11-08 01:00:48+00:00</td>
+      <td>514.0</td>
+      <td>92.65</td>
+      <td>0.180</td>
+      <td>14.9</td>
+      <td>7.7</td>
+    </tr>
+    <tr>
+      <td>Van</td>
+      <td>762</td>
+      <td>118</td>
+      <td>2022-04-27 02:01:28+00:00</td>
+      <td>2022-05-06 18:00:40+00:00</td>
+      <td>9.7</td>
+      <td>1.56</td>
+      <td>0.162</td>
+      <td>13.4</td>
+      <td>7.7</td>
+    </tr>
+    <tr>
+      <td>Willow</td>
+      <td>27552</td>
+      <td>4753</td>
+      <td>2022-04-24 04:00:18+00:00</td>
+      <td>2023-02-20 00:00:55+00:00</td>
+      <td>301.8</td>
+      <td>54.29</td>
+      <td>0.180</td>
+      <td>11.4</td>
+      <td>7.1</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h2>3. Health &amp; mortality — both species</h2>
+<img class="fullw" src="figures/cod.png" alt="COD by species">
+<p>Cat predation and disease dominate across both species, with carpet python
+predation accounting for several glider deaths and a couple of koalas.</p>
+
+<h2>4. Tree use — both species</h2>
+<img class="fullw" src="figures/trees.png" alt="Trees by species">
+<p>Koalas favour <em>Eucalyptus tereticornis</em>, <em>E. populnea</em> and
+<em>E. crebra</em>. Gliders use a broader mix including <em>Corymbia</em> species
+and hollow-bearing trees.</p>
+
+<h2>5. Behaviour modes &amp; report reasons</h2>
+<p>Behaviour modes in the GPS data are koala-only — gliders have no collars.
+Codes like <code>BM_KOALA_BEACON_CLOSE_INTERACTION</code> flag collar-to-collar
+RF proximity events between koalas.</p>
+
+<h2>6. Fence interactions</h2>
+<div class="pembroke-callout">All <code>fence_dist</code> values are <strong>100,000 m</strong>
+(the sentinel for "no active virtual fence"). The fence-distance feature was never
+deployed during this monitoring period.</div>
+
+<h2>Known data caveats</h2>
+<p>Issues found during the data audit. None affect the core movement/home-range outputs; they're listed so anyone reading the report knows what's behind the numbers.</p>
+<ul>
+  <li><strong>Beacon-detection records</strong> are mixed into the GPS schema with column overloading (the "Latitude" column carries the partner collar's device UID, "Longitude" carries the RSSI). The pipeline now parses these separately into <code>outputs/tables/beacon_detections.csv</code> (268 events) and <code>beacon_pairs.csv</code> (148 unique pairs). See the dashboard's <em>Social network</em> section for the resulting network.</li>
+  <li><strong>~59,000 aggregate beacon-mode events</strong> (<code>BM_KOALA_BEACON_NEAR / HEARD / CLOSE_INTERACTION</code>) are also recorded but don't identify the partner koala — they just tell us a koala detected <em>some</em> nearby collar. Useful as a proximity-event indicator but not for building a network.</li>
+  <li><strong>Post-death GPS fixes:</strong> 11 of 21 deceased koalas show fixes after their recorded <code>date_death</code>. In every case except one, the late fixes are the recovered collar continuing to transmit from Iffley Homestead until manually deactivated, plus small carcass-displacement movements (32&ndash;231&nbsp;m). The exception is <strong>Craig</strong>, with 357 free-ranging fixes covering 4.7&nbsp;km over 58 days post-death — needs vet-team confirmation that <code>date_death</code> is correct (or the collar wasn't redeployed). Full audit in <code>outputs/tables/post_death_audit.csv</code>.</li>
+  <li><strong>Nico</strong> (glider, carpet python predation, 2026-02-08) has a profile <code>date_death</code> but no matching necropsy record &mdash; 1 of 42 deaths unaccounted for in the Necropsies sheet.</li>
+  <li><strong>67 field events have no Auto Easting/Northing</strong> (0.5% of 13,472). Mostly Capture / Release events &mdash; coordinates likely just not recorded at the time.</li>
+  <li><strong>One placeholder record</strong> in Field Events: an animal literally named "Koala" appears with three sexes recorded. Almost certainly a test record, not a real individual.</li>
+</ul>
+
+<h2>7. Coordinate reference</h2>
+<p>GPS collar data is in <strong>WGS84 (EPSG:4326)</strong>. Field events come
+in <strong>GDA94/GDA2020 MGA Zone 55 (EPSG:7855)</strong> easting/northing —
+the pipeline projects both into a common WGS84 frame for mapping, and uses
+EPSG:7855 for area calculations.</p>
+
+</main>
+
+<footer class="pembroke-footer">Pembroke Resources · Olive Downs Complex · Koala &amp; Glider Monitoring · 17 May 2026</footer>
+</body></html>

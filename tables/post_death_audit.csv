@@ -1,0 +1,12 @@
+koala,ear_tag,cod,date_death,last_fix_ts,days_after_death,n_post_death_fixes,n_at_iffley,n_in_field,field_movement_m,interpretation
+Shinny,Blue 0082,Disease,2025-12-23,2026-03-14 14:11,81.6,89,89,0,0.0,Collar recovered to Iffley Homestead (no further field movement)
+Craig,Blue 0076,Unknown - other,2026-01-15,2026-03-14 14:12,58.6,464,107,357,4690.0,FIELD movement after death date — confirm date_death or check redeployment
+Isaiah,Blue 0078,Disease,2024-01-19,2024-03-15 16:01,56.7,29,7,22,231.0,Collar at Iffley + 22 free fixes (carcass moved?)
+Willow,Blue 0099,Predation - carpet python,2023-02-20,2023-03-18 14:00,26.6,43,37,6,44.0,Collar at Iffley + 6 free fixes (carcass moved?)
+Maxy,Blue 0097,Trauma - other,2023-11-30,2023-12-08 05:26,8.2,92,76,16,173.0,Collar at Iffley + 16 free fixes (carcass moved?)
+Blaise,Blue 0046,Disease,2026-03-08,2026-03-13 17:00,5.7,150,150,0,0.0,Collar recovered to Iffley Homestead (no further field movement)
+Lotus,Blue 0062,Disease,2026-03-11,2026-03-13 17:00,2.7,63,53,10,131.0,Collar at Iffley + 10 free fixes (carcass moved?)
+Noah,Blue 0080,Disease,2024-10-23,2024-10-24 08:02,1.3,30,24,6,32.0,Collar at Iffley + 6 free fixes (carcass moved?)
+Niko,Blue 0086,Disease,2024-02-26,2024-02-26 06:00,0.3,2,0,2,25.0,Post-death fixes in field (no Iffley visit)
+John,Blue 0065,Predation - wild dog,2024-09-18,2024-09-18 08:00,0.3,7,0,7,163.0,Post-death fixes in field (no Iffley visit)
+Flynn,Nil (previously Blue 0061),Disease,2025-05-30,2025-05-30 06:00,0.3,4,4,0,0.0,Collar recovered to Iffley Homestead (no further field movement)
