@@ -115,7 +115,7 @@ img.pembroke-logo {
   <img src="brand/sub-brands/olive-downs-complex-dark.svg" alt="Pembroke Resources - Olive Downs Complex" class="pembroke-logo">
   <div class="pembroke-header-text">
     <h1>Koala &amp; Glider Monitoring</h1>
-    <p>Exploratory Data Analysis · generated 17 May 2026, 10:44</p>
+    <p>Exploratory Data Analysis · generated 17 May 2026, 11:06</p>
   </div>
 </header>
 
@@ -805,7 +805,7 @@ deployed during this monitoring period.</div>
 <p>Issues found during the data audit. None affect the core movement/home-range outputs; they're listed so anyone reading the report knows what's behind the numbers.</p>
 <ul>
   <li><strong>Beacon-detection records</strong> are mixed into the GPS schema with column overloading (the "Latitude" column carries the partner collar's device UID, "Longitude" carries the RSSI). The pipeline now parses these separately into <code>outputs/tables/beacon_detections.csv</code> (268 events) and <code>beacon_pairs.csv</code> (148 unique pairs). See the dashboard's <em>Social network</em> section for the resulting network.</li>
-  <li><strong>~59,000 aggregate beacon-mode events</strong> (<code>BM_KOALA_BEACON_NEAR / HEARD / CLOSE_INTERACTION</code>) are also recorded but don't identify the partner koala — they just tell us a koala detected <em>some</em> nearby collar. Useful as a proximity-event indicator but not for building a network.</li>
+  <li><strong>The named-beacon data covers only ~0.5% of actual koala-to-koala encounters.</strong> The collars log roughly <strong>59,000 aggregate beacon events</strong> (<code>BM_KOALA_BEACON_NEAR / HEARD / CLOSE_INTERACTION</code>) showing two koalas in close proximity, but only <strong>268 (0.5%)</strong> include the partner's identity. <strong>72% of those 268 identified events occurred in March 2026</strong>, and <strong>22 of 49 collared koalas have zero identified beacon events</strong> despite thousands of anonymous detections. This strongly suggests a firmware or export-configuration change in late 2025 / early 2026 that started including partner identities in scheduled reports. <em>The social network in the dashboard is real but heavily under-sampled and time-skewed.</em> Worth asking the collar provider whether earlier exports can be re-pulled with identities.</li>
   <li><strong>Post-death GPS fixes:</strong> 11 of 21 deceased koalas show fixes after their recorded <code>date_death</code>. In every case except one, the late fixes are the recovered collar continuing to transmit from Iffley Homestead until manually deactivated, plus small carcass-displacement movements (32&ndash;231&nbsp;m). The exception is <strong>Craig</strong>, with 357 free-ranging fixes covering 4.7&nbsp;km over 58 days post-death — needs vet-team confirmation that <code>date_death</code> is correct (or the collar wasn't redeployed). Full audit in <code>outputs/tables/post_death_audit.csv</code>.</li>
   <li><strong>Nico</strong> (glider, carpet python predation, 2026-02-08) has a profile <code>date_death</code> but no matching necropsy record &mdash; 1 of 42 deaths unaccounted for in the Necropsies sheet.</li>
   <li><strong>67 field events have no Auto Easting/Northing</strong> (0.5% of 13,472). Mostly Capture / Release events &mdash; coordinates likely just not recorded at the time.</li>
